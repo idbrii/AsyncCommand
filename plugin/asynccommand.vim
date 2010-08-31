@@ -1,7 +1,6 @@
 " AsyncCommand
 "   Execute commands and have them send their result to vim when they
 "   complete.
-"   TODO: cscope search
 " Author: pydave
 " Influences: http://vim.wikia.com/wiki/VimTip1549 (Getting results back into Vim)
 "
@@ -14,6 +13,15 @@ let g:loaded_asynccommand = 1
 
 command! -nargs=+ -complete=file AsyncGrep call AsyncGrep(<q-args>)
 command! -nargs=+ -complete=file -complete=shellcmd AsyncShell call AsyncShell(<q-args>)
+command! -nargs=1 -complete=tag AsyncCscopeFindSymbol call AsyncCscopeFind('0', <q-args>)
+command! -nargs=1 -complete=tag AsyncCscopeFindCalls call AsyncCscopeFind('3', <q-args>)
+command! -nargs=1 -complete=tag AsyncCscopeFindX call AsyncCscopeFindX(<q-args>)
+
+
+if (! exists("no_plugin_maps") || ! no_plugin_maps) &&
+      \ (! exists("no_asynccommand_maps") || ! no_asynccommand_maps)
+    nmap <unique> <A-S-g> :AsyncCscopeFindSymbol <C-r>=expand('<cword>')<CR><CR>
+endif
 
 if exists('g:async_no_touch_lazyredraw')
     let g:async_no_touch_lazyredraw = 0
@@ -58,6 +66,9 @@ function! AsyncGrep(query)
 endfunction
 function! OnCompleteGetAsyncGrepResults(temp_file_name)
     let &errorformat = &grepformat
+    call OnCompleteLoadErrorFile(a:temp_file_name)
+endfunction
+function! OnCompleteLoadErrorFile(temp_file_name)
     exec "cfile " . a:temp_file_name
     cwindow
 endfunction
@@ -74,4 +85,61 @@ function! OnCompleteLoadFile(temp_file_name)
     endif
     exec "split " . a:temp_file_name
     wincmd w
+endfunction
+
+" Cscope find
+"   - open result in quickfix
+" s > 0   Find this C symbol
+" g > 1   Find this definition
+" d > 2   Find functions called by this function
+" c > 3   Find functions calling this function
+" t > 4   Find assignments to
+" e > 6   Find this egrep pattern
+" f > 7   Find this file
+" i > 8   Find files #including this file
+let s:type_char_to_num = {
+    \ 's': 0,
+    \ 'g': 1,
+    \ 'd': 2,
+    \ 'c': 3,
+    \ 't': 4,
+    \ 'e': 6,
+    \ 'f': 7,
+    \ 'i': 8,
+    \ }
+function! AsyncCscopeFindX(input)
+    " Split the type from the query
+    let type = a:input[0]
+    let query = a:input[2:]
+
+    " Convert the type from a char to a number
+    " (cscope -l requires a number)
+    try
+        let type_num = s:type_char_to_num[ a:input[ type ] ]
+    catch /Key not present in Dictionary/
+        echo "Error: " . type . " is an invalid find query. See :cscope help"
+        return
+    endtry
+
+    call AsyncCscopeFind(type_num, query)
+endfunction
+
+function! AsyncCscopeFind(type_num, query)
+    " -d  Don't rebuild the database
+    " -l  Use cscope's line-oriented mode to send a single search command
+    " The output is in the form: "filename location line-number context"
+    " Use sed to change it so we can use efm: "filename:line-number location context"
+    let command = "echo " . a:type_num . a:query . " | " . &cscopeprg . " -dl | sed --regexp-extended -e\"s/(.+) (.+) ([0-9]+)/\\1:\\3 \\2 \t/\""
+
+    let vim_func = "OnCompleteGetAsyncCscopeResults"
+
+    call AsyncCommand(command, vim_func)
+endfunction
+function! OnCompleteGetAsyncCscopeResults(temp_file_name)
+    " Ignore the >> lines
+    set efm=%-G>>%m
+    " Match file, line, and message
+    set efm+=%f:%l\ %m
+
+    call OnCompleteLoadErrorFile(a:temp_file_name)
 endfunction

@@ -127,9 +127,16 @@ endfunction
 function! AsyncCscopeFind(type_num, query)
     " -d  Don't rebuild the database
     " -l  Use cscope's line-oriented mode to send a single search command
+    " -f file  Use file as the database file name instead of the default
+    " -P path  Prepend path to relative file names in a pre-built database
     " The output is in the form: "filename location line-number context"
     " Use sed to change it so we can use efm: "filename:line-number location context"
-    let command = "echo " . a:type_num . a:query . " | " . &cscopeprg . " -dl | sed --regexp-extended -e\"s/(.+) (.+) ([0-9]+)/\\1:\\3 \\2 \t/\""
+    if !exists('g:cscope_database') || !exists('g:cscope_relative_path')
+        echoerr "You must define both g:cscope_database and g:cscope_relative_path"
+        echoerr "See LocateCscopeFile in tagfilehelpers.vim"
+    endif
+    let cscope_cmd = &cscopeprg . " -dl -f " . g:cscope_database . " -P " . g:cscope_relative_path
+    let command = "echo " . a:type_num . a:query . " | " . cscope_cmd . " | sed --regexp-extended -e\"s/(.+) (.+) ([0-9]+)/\\1:\\3 \\2 \t/\""
 
     let vim_func = "OnCompleteGetAsyncCscopeResults"
 

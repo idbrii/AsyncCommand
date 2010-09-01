@@ -144,9 +144,9 @@ function! AsyncCscopeFind(type_num, query)
 endfunction
 function! OnCompleteGetAsyncCscopeResults(temp_file_name)
     " Ignore the >> lines
-    set efm=%-G>>%m
+    setlocal efm=%-G>>%m
     " Match file, line, and message
-    set efm+=%f:%l\ %m
+    setlocal efm+=%f:%l\ %m
 
     call OnCompleteLoadErrorFile(a:temp_file_name)
 endfunction

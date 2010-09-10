@@ -136,7 +136,8 @@ function! AsyncCscopeFind(type_num, query)
         echoerr "See LocateCscopeFile in tagfilehelpers.vim"
     endif
     let cscope_cmd = &cscopeprg . " -dl -f " . g:cscope_database . " -P " . g:cscope_relative_path
-    let command = "echo " . a:type_num . a:query . " | " . cscope_cmd . " | sed --regexp-extended -e\"s/(.+) (.+) ([0-9]+)/\\1:\\3 \\2 \t/\""
+    " sed command: (filename) (symbol context -- may contain spaces) (line number)
+    let command = "echo " . a:type_num . a:query . " | " . cscope_cmd . " | sed --regexp-extended -e\"s/(\\w+) (.+) ([0-9]+)/\\1:\\3 \\2 \t/\""
 
     let vim_func = "OnCompleteGetAsyncCscopeResults"
 

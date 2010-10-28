@@ -69,7 +69,7 @@ function! OnCompleteGetAsyncGrepResults(temp_file_name)
     call OnCompleteLoadErrorFile(a:temp_file_name)
 endfunction
 function! OnCompleteLoadErrorFile(temp_file_name)
-    exec "cfile " . a:temp_file_name
+    exec "cgetfile " . a:temp_file_name
     cwindow
 endfunction
 

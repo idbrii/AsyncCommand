@@ -23,10 +23,6 @@ if (! exists("no_plugin_maps") || ! no_plugin_maps) &&
     nmap <unique> <A-S-g> :AsyncCscopeFindSymbol <C-r>=expand('<cword>')<CR><CR>
 endif
 
-if exists('g:async_no_touch_lazyredraw')
-    let g:async_no_touch_lazyredraw = 0
-endif
-
 " Basic background task running is different on each platform
 if has("win32")
     " Works in Windows (Win7 x64)
@@ -71,6 +67,7 @@ endfunction
 function! OnCompleteLoadErrorFile(temp_file_name)
     exec "cgetfile " . a:temp_file_name
     cwindow
+    redraw
 endfunction
 
 " Shell commands
@@ -80,11 +77,9 @@ function! AsyncShell(command)
     call AsyncCommand(a:command, vim_func)
 endfunction
 function! OnCompleteLoadFile(temp_file_name)
-    if g:async_no_touch_lazyredraw = 0
-        set nolazyredraw
-    endif
     exec "split " . a:temp_file_name
     wincmd w
+    redraw
 endfunction
 
 " Cscope find

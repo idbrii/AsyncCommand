@@ -129,6 +129,7 @@ function! AsyncCscopeFind(type_num, query)
     if !exists('g:cscope_database') || !exists('g:cscope_relative_path')
         echoerr "You must define both g:cscope_database and g:cscope_relative_path"
         echoerr "See LocateCscopeFile in tagfilehelpers.vim"
+        return
     endif
     let cscope_cmd = &cscopeprg . " -dl -f " . g:cscope_database . " -P " . g:cscope_relative_path
     " sed command: (filename) (symbol context -- may contain spaces) (line number)

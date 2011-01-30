@@ -54,6 +54,9 @@ if (! exists("no_plugin_maps") || ! no_plugin_maps) &&
     nmap <unique> <A-S-g> :AsyncCscopeFindSymbol <C-r>=expand('<cword>')<CR><CR>
 endif
 
+""""""""""""""""""""""
+" Library implementation
+
 " Basic background task running is different on each platform
 if has("win32")
     " Works in Windows (Win7 x64)
@@ -79,6 +82,19 @@ function! AsyncCommand(command, vim_func)
     call <SID>Async_Impl(tool_cmd, vim_cmd)
 endfunction
 
+" Load the output as an error file -- does not jump cursor to quick fix
+function! OnCompleteLoadErrorFile(temp_file_name)
+    exec "cgetfile " . a:temp_file_name
+    cwindow
+    redraw
+endfunction
+
+" Load the output as a file -- moves cursor back to previous window
+function! OnCompleteLoadFile(temp_file_name)
+    exec "split " . a:temp_file_name
+    wincmd w
+    redraw
+endfunction
 
 """"""""""""""""""""""
 " Actual implementations
@@ -95,22 +111,12 @@ function! OnCompleteGetAsyncGrepResults(temp_file_name)
     let &errorformat = &grepformat
     call OnCompleteLoadErrorFile(a:temp_file_name)
 endfunction
-function! OnCompleteLoadErrorFile(temp_file_name)
-    exec "cgetfile " . a:temp_file_name
-    cwindow
-    redraw
-endfunction
 
 " Shell commands
 "   - open result in a split
 function! AsyncShell(command)
     let vim_func = "OnCompleteLoadFile"
     call AsyncCommand(a:command, vim_func)
-endfunction
-function! OnCompleteLoadFile(temp_file_name)
-    exec "split " . a:temp_file_name
-    wincmd w
-    redraw
 endfunction
 
 " Cscope find

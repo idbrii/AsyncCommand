@@ -5,6 +5,37 @@
 " Influences: http://vim.wikia.com/wiki/VimTip1549 (Getting results back into Vim)
 "
 "
+" AsyncCommand allows you to execute shell commands without waiting for them
+" to complete. When the application terminates, its output can be loaded into
+" a vim buffer. AsyncCommand is written to be compatible with Windows and
+" Linux (tested on Win7 and Ubuntu 10.10).
+" 
+" Currently three types of commands are supported:
+" AsyncGrep   -- grep for files and load results in quickfix
+" AsyncShell  -- run any program and load results in a split
+" and three cscope commands: AsyncCscopeFindSymbol, AsyncCscopeFindCalls, AsyncCscopeFindX
+" 
+" You can define your own commands commands by following the same format:
+" Define the launch function that passes the external command and result
+" function to AsyncCommand (like AsyncHello), define the complete function
+" (like OnCompleteLoadFile).
+" 
+" Example:
+" function! AsyncHello(query)
+"     " echo hello and the parameter
+"     let hello_cmd = "echo hello ".a:query
+"     " just load the file when we're done
+"     let vim_func = "OnCompleteLoadFile"
+" 
+"     " call our core function to run in the background and then load the
+"     " output file on completion
+"     call AsyncCommand(hello_cmd, vim_func)
+" endfunction
+
+" Note that cscope functions require these variables:
+"   let g:cscope_database = **full path to cscope database file**
+"   let g:cscope_relative_path = **folder containing cscope database file**
+" These variables are set by tagfilehelpers.vim
 
 if exists('g:loaded_asynccommand')
     finish
@@ -84,6 +115,7 @@ endfunction
 
 " Cscope find
 "   - open result in quickfix
+" Map the commands from `:cscope help` to the numbers expected by `cscope -l`
 " s > 0   Find this C symbol
 " g > 1   Find this definition
 " d > 2   Find functions called by this function
@@ -102,6 +134,8 @@ let s:type_char_to_num = {
     \ 'f': 7,
     \ 'i': 8,
     \ }
+" Wrap AsyncCscopeFind to make it easier to do cscope searches. The user
+" passes everything as one parameter and doesn't have to use numbers.
 function! AsyncCscopeFindX(input)
     " Split the type from the query
     let type = a:input[0]

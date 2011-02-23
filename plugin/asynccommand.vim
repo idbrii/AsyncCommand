@@ -47,6 +47,7 @@ command! -nargs=+ -complete=file -complete=shellcmd AsyncShell call AsyncShell(<
 command! -nargs=1 -complete=tag AsyncCscopeFindSymbol call AsyncCscopeFind('0', <q-args>)
 command! -nargs=1 -complete=tag AsyncCscopeFindCalls call AsyncCscopeFind('3', <q-args>)
 command! -nargs=1 -complete=tag AsyncCscopeFindX call AsyncCscopeFindX(<q-args>)
+command! -nargs=* AsyncMake call AsyncMake(<q-args>)
 
 
 if (! exists("no_plugin_maps") || ! no_plugin_maps) &&
@@ -118,6 +119,16 @@ function! AsyncShell(command)
     let vim_func = "OnCompleteLoadFile"
     call AsyncCommand(a:command, vim_func)
 endfunction
+
+" Make
+"   - uses the current make command
+"   - optional parameter for make target(s)
+function! AsyncMake(target)
+    let make_cmd = &makeprg ." ". a:target
+    let vim_func = "OnCompleteLoadErrorFile"
+    call AsyncCommand(make_cmd, vim_func)
+endfunction
+
 
 " Cscope find
 "   - open result in quickfix

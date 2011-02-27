@@ -67,7 +67,7 @@ if has("win32")
 else
     " Works in linux (Ubuntu 10.04)
     function! <SID>Async_Impl(tool_cmd, vim_cmd)
-        silent exec "! ".a:tool_cmd." ; ".a:vim_cmd." &"
+        silent exec "! (".a:tool_cmd." ; ".a:vim_cmd.") &"
     endfunction
 endif
 

@@ -72,6 +72,12 @@ else
 endif
 
 function! AsyncCommand(command, vim_func)
+    if len(v:servername) == 0
+        echo "Error: AsyncCommand requires vim to be started with a servername."
+        echo "       See :help --servername"
+        return
+    endif
+
     " String together and execute.
     let temp_file = tempname()
 

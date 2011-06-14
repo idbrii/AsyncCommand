@@ -25,6 +25,13 @@ else
 endif
 
 function! asynccommand#run(command, ...)
+    " asynccommand#run(command, [function], [dict])
+    "   - command is the shell command to execute asynchronously.
+    "   - [function] will be called when the command completes. Function
+    "   signature should be func(filename) or func(filename, dict) depending
+    "   on whether you provide dict. If function is not provided, nothing is
+    "   done on command completion.
+    "   - [dict] will be passed to function.
   if len(v:servername) == 0
     echo "Error: AsyncCommand requires vim to be started with a servername."
     echo "       See :help --servername"
@@ -47,7 +54,11 @@ function! asynccommand#run(command, ...)
   " Grab output and error in case there's something we should see
   let tool_cmd = a:command . printf(&shellredir, temp_file)
 
-  if type(Fn) == type({}) && has_key(Fn, 'get') && type(Fn.get) == type(function('asynccommand#run'))
+  if type(Fn) == type({})
+              \ && has_key(Fn, 'get')
+              \ && type(Fn.get) == type(function('asynccommand#run'))
+    " Fn is a dictionary and Fn.get is the function we should execute on
+    " completion.
     let s:receivers[temp_file] = {'func': Fn.get, 'dict': Fn}
   else
     let s:receivers[temp_file] = {'func': Fn, 'dict': env}
@@ -67,6 +78,7 @@ function! asynccommand#run(command, ...)
 endfunction
 
 function! asynccommand#done(temp_file_name)
+  " Called on completion of the task
   let r = s:receivers[a:temp_file_name]
   if type(r.dict) == type({})
     call call(r.func, [a:temp_file_name], r.dict)
@@ -78,6 +90,7 @@ function! asynccommand#done(temp_file_name)
 endfunction
 
 function! asynccommand#rename(path)
+  " Move the output file to somewhere permanent.
   let env = {'path': a:path}
   function env.get(temp_file_name) dict
     silent! let ret = rename(a:temp_file_name, self.path)
@@ -90,6 +103,8 @@ function! asynccommand#rename(path)
   return env
 endfunction
 
+" Convienience functions for loading the result in the quickfix/locationlist
+" or adding to the window's contents
 function! asynccommand#quickfix(format, ...)
   if a:0 == 1
     return asynccommand#qf("cgetfile", "quickfix", a:format, a:1)
@@ -124,6 +139,7 @@ endfunction
 
 
 function! asynccommand#qf(command, list, format, title)
+  " Load the result in the quickfix/locationlist
   let env = {
         \ 'title': a:title,
         \ 'command': a:command,
@@ -150,6 +166,15 @@ function! asynccommand#qf(command, list, format, title)
 endfunction
 
 function! asynccommand#tab_restore(env)
+  " Open the tab the command was run from, load the results there, and then
+  " return to the current tab. This ensures that our results are visible where
+  " they'll be useful, but we don't jump between tabs.
+  "
+  " We also use lazyredraw to ensure that the user doesn't see their cursor
+  " jumping around.
+  "
+  " TODO: We probably want notification when the task completes since we won't
+  " see it from our current tab.
   let env = {
         \ 'tab': tabpagenr(),
         \ 'env': a:env,
@@ -160,6 +185,8 @@ function! asynccommand#tab_restore(env)
     let current_tab = tabpagenr()
     try
       silent! exec "tabnext " . self.tab
+      " self.env.get is not this function -- it's the function passed to
+      " tab_restore()
       call call(self.env.get, [a:temp_file_name], self.env)
       silent! exe "tabnext " . current_tab
       redraw
@@ -171,6 +198,7 @@ function! asynccommand#tab_restore(env)
 endfunction
 
 function! asynccommand#split()
+  " Load the result in a split
   let env = {}
   function env.get(temp_file_name) dict
     exec "split " . a:temp_file_name

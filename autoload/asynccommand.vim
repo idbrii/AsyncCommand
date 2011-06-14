@@ -129,7 +129,7 @@ function! asynccommand#loclist(format, ...)
   endif
 endfunction
 
-function! asynccommand#loclist_add(format, title)
+function! asynccommand#loclist_add(format, ...)
   if a:0 == 1
     return asynccommand#qf("laddfile", "location-list", a:format, a:1)
   else

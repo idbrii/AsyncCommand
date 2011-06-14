@@ -1,3 +1,9 @@
+" AsyncCommand implementation
+"
+" This is the core implementation of AsyncCommand. In general, these functions
+" should only be called from AsyncCommand handlers. For handlers to use in
+" Async commands, see asynccommand_handlers.vim
+
 if exists("g:loaded_autoload_asynccommand") || &cp || !has('clientserver')
   finish
 endif
@@ -89,67 +95,6 @@ function! asynccommand#done(temp_file_name)
   delete a:temp_file_name
 endfunction
 
-function! asynccommand#rename(path)
-  " Move the output file to somewhere permanent.
-  let env = {'path': a:path}
-  function env.get(temp_file_name) dict
-    silent! let ret = rename(a:temp_file_name, self.path)
-    if ret != 0
-      echohl WarningMsg
-      echo "Async rename failed: " . escape(self.path)
-      echohl NONE
-    endif
-  endfunction
-  return env
-endfunction
-
-" Convienience functions for loading the result in the quickfix/locationlist
-" or adding to the window's contents
-"
-function! asynccommand#quickfix(format, title)
-    return asynccommand#qf("cgetfile", "quickfix", a:format, a:title)
-endfunction
-
-function! asynccommand#quickfix_add(format, title)
-    return asynccommand#qf("caddfile", "quickfix", a:format, a:title)
-endfunction
-
-function! asynccommand#loclist(format, title)
-    return asynccommand#qf("lgetfile", "location-list", a:format, a:title)
-endfunction
-
-function! asynccommand#loclist_add(format, title)
-    return asynccommand#qf("laddfile", "location-list", a:format, a:title)
-endfunction
-
-
-function! asynccommand#qf(command, list, format, title)
-  " Load the result in the quickfix/locationlist
-  let env = {
-        \ 'title': a:title,
-        \ 'command': a:command,
-        \ 'list': a:list, 
-        \ 'format': a:format, 
-        \ 'mode': a:list == 'quickfix' ? 'c' : 'l',
-        \ }
-  function env.get(temp_file_name) dict
-    let errorformat=&errorformat
-    let &errorformat=self.format
-    try
-      exe 'botright ' . self.mode . "open"
-      let cmd = self.command . ' ' . a:temp_file_name
-      exe cmd
-      if type(self.title) == type("") && self.title != ""
-        let w:quickfix_title = printf(self.title, len(self.mode == 'c' ? getqflist() : getloclist()))
-      endif
-      silent! wincmd p
-    finally
-      let &errorformat = errorformat
-    endtry
-  endfunction
-  return asynccommand#tab_restore(env)
-endfunction
-
 function! asynccommand#tab_restore(env)
   " Open the tab the command was run from, load the results there, and then
   " return to the current tab. This ensures that our results are visible where
@@ -180,16 +125,6 @@ function! asynccommand#tab_restore(env)
     endtry
   endfunction
   return env
-endfunction
-
-function! asynccommand#split()
-  " Load the result in a split
-  let env = {}
-  function env.get(temp_file_name) dict
-    exec "split " . a:temp_file_name
-    silent! wincmd p
-  endfunction
-  return asynccommand#tab_restore(env)
 endfunction
 
 "vi:et:sw=4 ts=4

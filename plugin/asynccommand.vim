@@ -75,13 +75,13 @@ endif
 "   - open result in quickfix
 function! s:AsyncGrep(query)
     let grep_cmd = "grep --line-number --with-filename ".a:query
-    call asynccommand#run(grep_cmd, asynccommand#quickfix(&grepformat, '[Found: %s] grep ' . a:query))
+    call asynccommand#run(grep_cmd, asynchandler#quickfix(&grepformat, '[Found: %s] grep ' . a:query))
 endfunction
 
 " Shell commands
 "   - open result in a split
 function! s:AsyncShell(command)
-    call asynccommand#run(a:command, asynccommand#split())
+    call asynccommand#run(a:command, asynchandler#split())
 endfunction
 
 " Cscope find
@@ -156,7 +156,7 @@ function! s:AsyncCscopeFind(type_num, query, title)
 endfunction
 
 function! s:CScopeResults(title)
-  return asynccommand#quickfix("%-G>>%m,%f:%l\ %m", "[Found: %s] CScope: " . a:title)
+  return asynchandler#quickfix("%-G>>%m,%f:%l\ %m", "[Found: %s] CScope: " . a:title)
 endfunction
 
 let &cpo = s:save_cpo

@@ -178,3 +178,5 @@ function! asynccommand#split()
   endfunction
   return asynccommand#tab_restore(env)
 endfunction
+
+"vi:et:sw=4 ts=4

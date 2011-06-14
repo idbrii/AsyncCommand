@@ -1,0 +1,101 @@
+*asynccommand.txt*	Plugin for running asynchronous shell commands.
+
+==============================================================================
+
+						   *asynccommand-requirements*
+AsyncCommand Requirements~
+
+AsyncCommand needs vim compiled with |+clientserver|. Check your vim version
+with |:vesion|.
+
+						       *asynccommand-commands*
+Commands~
+
+:AsyncCommand {cmd}					       *:AsyncCommand*
+		Execute shell {cmd} in the background.
+
+						      *asynccommand-functions*
+Functions~
+
+asynccommand#run({command} [, {function}[, {dict}]])        *asynccommand#run*
+		Execute a shell {command} in the background.
+		After the command is executed {function} can will be called.
+		{fuction} can be either:
+		string
+			Name of a function.
+		|Funcref|
+			A Function ref
+		|Dictionary|
+			A dictionary with a |Dictionary-function| named key
+			named 'get'.
+
+		The {dict} argument can be supplied to be used to call with
+		the {function}. This the same as using the third argument to
+		|call()|.
+
+		The {function} will be of the following form:
+		some_function(temp_name)
+
+		temp_name will be the name of temporary file used to capture
+		the output of the {command}.
+
+		Examples: >
+
+		command! Ctags asynccommand#run('ctags -R', 'AfterCtags')
+		function! AfterCtags(temp_file)
+			call rename(a:temp_file, 'tags')
+		endfunction
+
+		command! -nargs=+ Ack AckFunc(<q-args>)
+		function! AckFunc(query)
+			let env = {}
+			let cmd = 'ack -H --nocolor --nogroup --column '
+			let cmd .= a:query
+			function env.get(temp_file) dict
+				let &efm = "%f:%l:%c:%m"
+				exe "cgetfile " . a:temp_file
+			endfunction
+			call asynccommand#run(cmd, env)
+		endfunction
+<
+
+Common Callbacks~
+
+asynccommand#rename({path})                             *asynccommand#rename*
+		Rename the temp_file to {path} after the background command
+		has been executed.
+
+asynccommand#quickfix({errorformat}, {title})         *asynccommand#quickfix*
+		Open the results in |quickfix-window| using {errorformat} as
+		the 'errorformat'. A {title} can be provided to give the
+		quickfix-window, similar to |w:quickfix_title|. Put %s into
+		the {title} to have it replaced with the number of results.
+
+asynccommand#quickfix_add({errorformat}, {title}) *asynccommand#quickfix_add*
+		Same as |asynccommand#quickfix| but results will be added.
+
+asynccommand#loclist({errorformat}, {title})           *asynccommand#loclist*
+		Same as |asynccommand#quickfix| but use the |location-list|.
+
+asynccommand#loclist_add({errorformat}, {title})   *asynccommand#loclist_add*
+		Same as |asynccommand#quickfix_add| but use the
+		|location-list|.
+
+asynccommand#split()                                     *asynccommand#split*
+		Open the results of the asynchronous shell command in a new
+		split.
+
+==============================================================================
+
+						  *asynchronous-configuration*
+Configuration~
+
+g:asynccommand_prg                                        *g:asynccommand_prg*
+		Override the default path to vim to be used by AsyncCommand to
+		capture data from backgrounded commands.  AsyncCommand is
+		compatible with |macvim| and will use mvim if it is available.
+		See |mvim| to setup this up.
+
+==============================================================================
+
+ vim:tw=78:ts=8:ft=help:norl:

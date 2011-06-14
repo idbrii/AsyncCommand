@@ -42,12 +42,21 @@ if exists('g:loaded_asynccommand')
 endif
 let g:loaded_asynccommand = 1
 
-command! -nargs=+ -complete=file AsyncGrep call AsyncGrep(<q-args>)
-command! -nargs=+ -complete=file -complete=shellcmd AsyncShell call AsyncShell(<q-args>)
-command! -nargs=1 -complete=tag AsyncCscopeFindSymbol call AsyncCscopeFind('0', <q-args>)
-command! -nargs=1 -complete=tag AsyncCscopeFindCalls call AsyncCscopeFind('3', <q-args>)
-command! -nargs=1 -complete=tag AsyncCscopeFindX call AsyncCscopeFindX(<q-args>)
-command! -nargs=* AsyncMake call AsyncMake(<q-args>)
+function! AsyncCommandDone(file)
+  return asynccommand#done(a:file)
+endfunction
+
+command! -nargs=+ -complete=shellcmd AsyncCommand call asynccommand#run(<q-args>)
+
+" Examples below
+" ==============
+
+command! -nargs=+ -complete=file AsyncGrep call s:AsyncGrep(<q-args>)
+command! -nargs=+ -complete=file -complete=shellcmd AsyncShell call s:AsyncShell(<q-args>)
+
+command! -nargs=1 -complete=tag AsyncCscopeFindSymbol call s:AsyncCscopeFindX('0 '. <q-args>)
+command! -nargs=1 -complete=tag AsyncCscopeFindCalls call s:AsyncCscopeFindX('3 '. <q-args>)
+command! -nargs=1 -complete=tag AsyncCscopeFindX call s:AsyncCscopeFindX(<q-args>)
 
 
 if (! exists("no_plugin_maps") || ! no_plugin_maps) &&
@@ -56,95 +65,20 @@ if (! exists("no_plugin_maps") || ! no_plugin_maps) &&
 endif
 
 """"""""""""""""""""""
-" Library implementation
-
-" Basic background task running is different on each platform
-if has("win32")
-    " Works in Windows (Win7 x64)
-    function! <SID>Async_Impl(tool_cmd, vim_cmd)
-        silent exec "!start cmd /c \"".a:tool_cmd." & ".a:vim_cmd."\""
-    endfunction
-else
-    " Works in linux (Ubuntu 10.04)
-    function! <SID>Async_Impl(tool_cmd, vim_cmd)
-        silent exec "! (".a:tool_cmd." ; ".a:vim_cmd.") &"
-    endfunction
-endif
-
-function! AsyncCommand(command, vim_func)
-    if len(v:servername) == 0
-        echo "Error: AsyncCommand requires vim to be started with a servername."
-        echo "       See :help --servername"
-        return
-    endif
-
-    " String together and execute.
-    let temp_file = tempname()
-
-    " Grab output and error in case there's something we should see
-    let tool_cmd = a:command . printf(&shellredir, temp_file)
-
-    let vim_cmd = "vim --servername ".v:servername." --remote-expr \"" . a:vim_func . "('" . temp_file . "')\" "
-
-    call <SID>Async_Impl(tool_cmd, vim_cmd)
-endfunction
-
-" Load the output as an error file -- does not jump cursor to quick fix
-function! OnCompleteLoadErrorFile(temp_file_name)
-    exec "cgetfile " . a:temp_file_name
-    cwindow
-    redraw
-endfunction
-
-" Load the output as a file -- moves cursor back to previous window
-function! OnCompleteLoadFile(temp_file_name)
-    exec "split " . a:temp_file_name
-    wincmd w
-    redraw
-endfunction
-
-""""""""""""""""""""""
 " Actual implementations
 
 " Grep
 "   - open result in quickfix
-function! AsyncGrep(query)
-    " Valid queries require two items. 
-    " We could also search for that item in the current file, but console grep
-    " reads stdin, :grep does nothing, and :vimgrep errors. And we'd have to
-    " special case when the buffer has no file.
-    " We're consistent instead of convenient.
-    if len(split(a:query, '\s')) < 2
-        echoerr "Invalid input: missing filename or pattern."
-        return
-    endif
-
+function! s:AsyncGrep(query)
     let grep_cmd = "grep --line-number --with-filename ".a:query
-    let vim_func = "OnCompleteGetAsyncGrepResults"
-
-    call AsyncCommand(grep_cmd, vim_func)
-endfunction
-function! OnCompleteGetAsyncGrepResults(temp_file_name)
-    let &errorformat = &grepformat
-    call OnCompleteLoadErrorFile(a:temp_file_name)
+    call asynccommand#run(grep_cmd, asynccommand#quickfix(&grepformat, '[Found: %s] grep ' . a:query))
 endfunction
 
 " Shell commands
 "   - open result in a split
-function! AsyncShell(command)
-    let vim_func = "OnCompleteLoadFile"
-    call AsyncCommand(a:command, vim_func)
+function! s:AsyncShell(command)
+    call asynccommand#run(a:command, asynccommand#split())
 endfunction
-
-" Make
-"   - uses the current make command
-"   - optional parameter for make target(s)
-function! AsyncMake(target)
-    let make_cmd = &makeprg ." ". a:target
-    let vim_func = "OnCompleteLoadErrorFile"
-    call AsyncCommand(make_cmd, vim_func)
-endfunction
-
 
 " Cscope find
 "   - open result in quickfix
@@ -167,9 +101,19 @@ let s:type_char_to_num = {
     \ 'f': 7,
     \ 'i': 8,
     \ }
+let s:num_to_description = {
+    \ 0: 'C symbol',
+    \ 1: 'Definition',
+    \ 2: 'Functions called by this function',
+    \ 3: 'Functions calling this function',
+    \ 4: 'Assignments to',
+    \ 6: 'Egrep pattern',
+    \ 7: 'File',
+    \ 8: '#including this file',
+    \ }
 " Wrap AsyncCscopeFind to make it easier to do cscope searches. The user
 " passes everything as one parameter and doesn't have to use numbers.
-function! AsyncCscopeFindX(input)
+function! s:AsyncCscopeFindX(input)
     " Split the type from the query
     let type = a:input[0]
     let query = a:input[2:]
@@ -179,14 +123,16 @@ function! AsyncCscopeFindX(input)
     try
         let type_num = s:type_char_to_num[ a:input[ type ] ]
     catch /Key not present in Dictionary/
-        echoerr "Error: " . type . " is an invalid find query. See :cscope help"
+        echo "Error: " . type . " is an invalid find query. See :cscope help"
         return
     endtry
 
-    call AsyncCscopeFind(type_num, query)
+    let title = s:num_to_description[type] . ' ' . query
+
+    call s:AsyncCscopeFind(type_num, query, title)
 endfunction
 
-function! AsyncCscopeFind(type_num, query)
+function! s:AsyncCscopeFind(type_num, query, title)
     " -d  Don't rebuild the database
     " -l  Use cscope's line-oriented mode to send a single search command
     " -f file  Use file as the database file name instead of the default
@@ -202,15 +148,9 @@ function! AsyncCscopeFind(type_num, query)
     " sed command: (filename) (symbol context -- may contain spaces) (line number)
     let command = "echo " . a:type_num . a:query . " | " . cscope_cmd . " | sed --regexp-extended -e\"s/(\\S+) (\\S+) ([0-9]+)/\\1:\\3 \\2 \t/\""
 
-    let vim_func = "OnCompleteGetAsyncCscopeResults"
-
-    call AsyncCommand(command, vim_func)
+    call asynccommand#run(command, s:CScopeResults(title))
 endfunction
-function! OnCompleteGetAsyncCscopeResults(temp_file_name)
-    " Ignore the >> lines
-    setlocal efm=%-G>>%m
-    " Match file, line, and message
-    setlocal efm+=%f:%l\ %m
 
-    call OnCompleteLoadErrorFile(a:temp_file_name)
+function! s:CScopeResults(title)
+  return asynccommand#quickfix("%-G>>%m,%f:%l\ %m", "[Found: %s] CScope: " . a:title)
 endfunction

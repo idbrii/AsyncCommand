@@ -105,36 +105,21 @@ endfunction
 
 " Convienience functions for loading the result in the quickfix/locationlist
 " or adding to the window's contents
-function! asynccommand#quickfix(format, ...)
-  if a:0 == 1
-    return asynccommand#qf("cgetfile", "quickfix", a:format, a:1)
-  else
-    return asynccommand#qf("cgetfile", "quickfix", a:format)
-  endif
+"
+function! asynccommand#quickfix(format, title)
+    return asynccommand#qf("cgetfile", "quickfix", a:format, a:title)
 endfunction
 
-function! asynccommand#quickfix_add(format, ...)
-  if a:0 == 1
-    return asynccommand#qf("caddfile", "quickfix", a:format, a:1)
-  else
-    return asynccommand#qf("caddfile", "quickfix", a:format)
-  endif
+function! asynccommand#quickfix_add(format, title)
+    return asynccommand#qf("caddfile", "quickfix", a:format, a:title)
 endfunction
 
-function! asynccommand#loclist(format, ...)
-  if a:0 == 1
-    return asynccommand#qf("lgetfile", "location-list", a:format, a:1)
-  else
-    return asynccommand#qf("lgetfile", "location-list", a:format)
-  endif
+function! asynccommand#loclist(format, title)
+    return asynccommand#qf("lgetfile", "location-list", a:format, a:title)
 endfunction
 
-function! asynccommand#loclist_add(format, ...)
-  if a:0 == 1
-    return asynccommand#qf("laddfile", "location-list", a:format, a:1)
-  else
-    return asynccommand#qf("laddfile", "location-list", a:format)
-  endif
+function! asynccommand#loclist_add(format, title)
+    return asynccommand#qf("laddfile", "location-list", a:format, a:title)
 endfunction
 
 

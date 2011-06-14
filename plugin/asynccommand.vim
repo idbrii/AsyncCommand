@@ -35,8 +35,8 @@ command! -nargs=+ -complete=shellcmd AsyncCommand call asynccommand#run(<q-args>
 command! -nargs=+ -complete=file AsyncGrep call s:AsyncGrep(<q-args>)
 command! -nargs=+ -complete=file -complete=shellcmd AsyncShell call s:AsyncShell(<q-args>)
 
-command! -nargs=1 -complete=tag AsyncCscopeFindSymbol call s:AsyncCscopeFindX('0 '. <q-args>)
-command! -nargs=1 -complete=tag AsyncCscopeFindCalls call s:AsyncCscopeFindX('3 '. <q-args>)
+command! -nargs=1 -complete=tag AsyncCscopeFindSymbol call s:AsyncCscopeFindX('s '. <q-args>)
+command! -nargs=1 -complete=tag AsyncCscopeFindCalls call s:AsyncCscopeFindX('c '. <q-args>)
 command! -nargs=1 -complete=tag AsyncCscopeFindX call s:AsyncCscopeFindX(<q-args>)
 
 
@@ -102,13 +102,13 @@ function! s:AsyncCscopeFindX(input)
     " Convert the type from a char to a number
     " (cscope -l requires a number)
     try
-        let type_num = s:type_char_to_num[ a:input[ type ] ]
+        let type_num = s:type_char_to_num[ type ]
     catch /Key not present in Dictionary/
         echo "Error: " . type . " is an invalid find query. See :cscope help"
         return
     endtry
 
-    let title = s:num_to_description[type] . ' ' . query
+    let title = s:num_to_description[type_num] . ' ' . query
 
     call s:AsyncCscopeFind(type_num, query, title)
 endfunction

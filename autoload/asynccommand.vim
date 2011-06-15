@@ -57,8 +57,14 @@ function! asynccommand#run(command, ...)
   " String together and execute.
   let temp_file = tempname()
 
+  let shellredir = &shellredir
+  if match( shellredir, '%s') == -1
+      " ensure shellredir has a %s so printf works
+      let shellredir .= '%s'
+  endif
+
   " Grab output and error in case there's something we should see
-  let tool_cmd = a:command . printf(&shellredir, temp_file)
+  let tool_cmd = a:command . printf(shellredir, temp_file)
 
   if type(Fn) == type({})
               \ && has_key(Fn, 'get')

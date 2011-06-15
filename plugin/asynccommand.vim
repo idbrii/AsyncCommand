@@ -3,6 +3,7 @@
 "   complete.
 " Author: pydave
 " Influences: http://vim.wikia.com/wiki/VimTip1549 (Getting results back into Vim)
+" Contributors: Peter Rincker
 "
 "
 " AsyncCommand allows you to execute shell commands without waiting for them

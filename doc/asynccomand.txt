@@ -1,4 +1,4 @@
-*asynccommand.txt*	Plugin for running asynchronous shell commands.
+*asynccommand.txt*	Plug-in for running asynchronous shell commands.
 
 ==============================================================================
 
@@ -6,7 +6,7 @@
 AsyncCommand Requirements~
 
 AsyncCommand needs vim compiled with |+clientserver|. Check your vim version
-with |:vesion|.
+with |:version|.
 
 						       *asynccommand-commands*
 Commands~
@@ -20,7 +20,7 @@ Functions~
 asynccommand#run({command} [, {function}[, {dict}]])        *asynccommand#run*
 		Execute a shell {command} in the background.
 		After the command is executed {function} can will be called.
-		{fuction} can be either:
+		{function} can be either:
 		string
 			Name of a function.
 		|Funcref|
@@ -94,7 +94,7 @@ g:asynccommand_prg                                        *g:asynccommand_prg*
 		Override the default path to vim to be used by AsyncCommand to
 		capture data from backgrounded commands.  AsyncCommand is
 		compatible with |macvim| and will use mvim if it is available.
-		See |mvim| to setup this up.
+		See |mvim| for setup.
 
 ==============================================================================
 

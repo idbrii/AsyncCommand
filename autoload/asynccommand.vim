@@ -80,7 +80,12 @@ endfunction
 function! asynccommand#rename(path)
   let env = {'path': a:path}
   function env.get(temp_file_name) dict
-    silent! call rename(temp_file_name, a:path)
+    silent! let ret = rename(a:temp_file_name, self.path)
+    if ret != 0
+      echohl WarningMsg
+      echo "Async rename failed: " . escape(self.path)
+      echohl NONE
+    endif
   endfunction
   return env
 endfunction

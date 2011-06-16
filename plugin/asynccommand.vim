@@ -129,11 +129,11 @@ function! s:AsyncCscopeFind(type_num, query, title)
     " sed command: (filename) (symbol context -- may contain spaces) (line number)
     let command = "echo " . a:type_num . a:query . " | " . cscope_cmd . " | sed --regexp-extended -e\"s/(\\S+) (\\S+) ([0-9]+)/\\1:\\3 \\2 \t/\""
 
-    call asynccommand#run(command, s:CScopeResults(a:title))
+    call asynccommand#run(command, s:CscopeResults(a:title))
 endfunction
 
-function! s:CScopeResults(title)
-  return asynchandler#quickfix("%-G>>%m,%f:%l\ %m", "[Found: %s] CScope: " . a:title)
+function! s:CscopeResults(title)
+  return asynchandler#quickfix("%-G>>%m,%f:%l\ %m", "[Found: %s] Cscope: " . a:title)
 endfunction
 
 let &cpo = s:save_cpo

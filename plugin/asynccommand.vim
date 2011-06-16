@@ -42,6 +42,9 @@ if exists('g:loaded_asynccommand')
 endif
 let g:loaded_asynccommand = 1
 
+let s:save_cpo = &cpo
+set cpo&vim
+
 function! AsyncCommandDone(file)
   return asynccommand#done(a:file)
 endfunction
@@ -154,3 +157,7 @@ endfunction
 function! s:CScopeResults(title)
   return asynccommand#quickfix("%-G>>%m,%f:%l\ %m", "[Found: %s] CScope: " . a:title)
 endfunction
+
+let &cpo = s:save_cpo
+
+"vi:et:sw=4 ts=4

@@ -41,21 +41,40 @@ asynccommand#run({command} [, {function}[, {dict}]])        *asynccommand#run*
 
 		Examples: >
 
-		command! Ctags asynccommand#run('ctags -R', 'AfterCtags')
-		function! AfterCtags(temp_file)
-			call asynchandler#rename(a:temp_file, 'tags')
+		command! GenerateCscopeFiles call GenerateCscopeFiles()
+		function! GenerateCscopeFiles()
+		    let cmd = 'find . -name "*.java"'
+		    let env = asynchandler#rename('cscope.files')
+		    call asynccommand#run(cmd, env)
 		endfunction
 
-		command! -nargs=+ Ack AckFunc(<q-args>)
+		command! -nargs=+ Ack call AckFunc(<q-args>)
 		function! AckFunc(query)
-			let env = {}
-			let cmd = 'ack -H --nocolor --nogroup --column '
-			let cmd .= a:query
-			function env.get(temp_file) dict
-				let &efm = "%f:%l:%c:%m"
-				exe "cgetfile " . a:temp_file
-			endfunction
-			call asynccommand#run(cmd, env)
+		    let cmd = 'ack -H --nocolor --nogroup --column '
+		    let cmd .= a:query
+		    let efm = "%f:%l:%c:%m"
+		    let title = "[Found: %s] Ack"
+		    let env = asynchandler#quickfix(efm, title)
+		    call asynccommand#run(cmd, env)
+		endfunction
+
+		command! -nargs=1 AntBuild call AntBuildFunc(<q-args>)
+		function! AntBuildFunc(target)
+		    let cmd = 'ant '
+		    let cmd .= a:target
+		    let env = {}
+		    function env.get(temp_file) dict
+			" open the file in a split
+			exec "split " . a:temp_file
+			" remove boring build output
+			%s/^\[xslt\].*$/
+			" go back to the previous window
+			wincmd p
+		    endfunction
+
+		    " tab_restore prevents interruption when the task completes.
+		    " All provided asynchandlers already use tab_restore.
+		    call asynccommand#run(cmd, asynccommand#tab_restore(env))
 		endfunction
 <
 

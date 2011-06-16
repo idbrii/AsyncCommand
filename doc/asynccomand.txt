@@ -43,7 +43,7 @@ asynccommand#run({command} [, {function}[, {dict}]])        *asynccommand#run*
 
 		command! Ctags asynccommand#run('ctags -R', 'AfterCtags')
 		function! AfterCtags(temp_file)
-			call rename(a:temp_file, 'tags')
+			call asynchandler#rename(a:temp_file, 'tags')
 		endfunction
 
 		command! -nargs=+ Ack AckFunc(<q-args>)
@@ -61,27 +61,27 @@ asynccommand#run({command} [, {function}[, {dict}]])        *asynccommand#run*
 
 Common Callbacks~
 
-asynccommand#rename({path})                             *asynccommand#rename*
+asynchandler#rename({path})                             *asynchandler#rename*
 		Rename the temp_file to {path} after the background command
 		has been executed.
 
-asynccommand#quickfix({errorformat}, {title})         *asynccommand#quickfix*
+asynchandler#quickfix({errorformat}, {title})         *asynchandler#quickfix*
 		Open the results in |quickfix-window| using {errorformat} as
 		the 'errorformat'. A {title} can be provided to give the
 		quickfix-window, similar to |w:quickfix_title|. Put %s into
 		the {title} to have it replaced with the number of results.
 
-asynccommand#quickfix_add({errorformat}, {title}) *asynccommand#quickfix_add*
-		Same as |asynccommand#quickfix| but results will be added.
+asynchandler#quickfix_add({errorformat}, {title}) *asynchandler#quickfix_add*
+		Same as |asynchandler#quickfix| but results will be added.
 
-asynccommand#loclist({errorformat}, {title})           *asynccommand#loclist*
-		Same as |asynccommand#quickfix| but use the |location-list|.
+asynchandler#loclist({errorformat}, {title})           *asynchandler#loclist*
+		Same as |asynchandler#quickfix| but use the |location-list|.
 
-asynccommand#loclist_add({errorformat}, {title})   *asynccommand#loclist_add*
-		Same as |asynccommand#quickfix_add| but use the
+asynchandler#loclist_add({errorformat}, {title})   *asynchandler#loclist_add*
+		Same as |asynchandler#quickfix_add| but use the
 		|location-list|.
 
-asynccommand#split()                                     *asynccommand#split*
+asynchandler#split()                                     *asynchandler#split*
 		Open the results of the asynchronous shell command in a new
 		split.
 

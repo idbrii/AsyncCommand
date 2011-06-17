@@ -2,6 +2,18 @@
 
 ==============================================================================
 
+                                                                *asynccommand*
+Introduction~
+
+AsyncCommand allows you to execute shell commands without waiting for them 
+to complete. When the application terminates, its output can be loaded into 
+a vim buffer.
+
+You can define your own commands by following the same format:
+Define a launch function that passes the external command and result handler
+(like asynchandler#quickfix) to asynccommand#run. You can use the handlers in
+autoload/asynchandler.vim or define your own.
+
 						   *asynccommand-requirements*
 AsyncCommand Requirements~
 
@@ -80,6 +92,7 @@ asynccommand#run({command} [, {function}[, {dict}]])        *asynccommand#run*
 		endfunction
 <
 
+                             *asynccommand-callbacks* *asynccommand-handlers*
 Common Callbacks~
 
 asynchandler#rename({path})                             *asynchandler#rename*

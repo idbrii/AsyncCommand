@@ -14,6 +14,10 @@ Commands~
 :AsyncCommand {cmd}					       *:AsyncCommand*
 		Execute shell {cmd} in the background.
 
+:AsyncShell {cmd}					         *:AsyncShell*
+                Execute shell {cmd} in the background. When it completes, open
+                the result in a split window.
+
 						      *asynccommand-functions*
 Functions~
 
@@ -21,8 +25,6 @@ asynccommand#run({command} [, {function}[, {dict}]])        *asynccommand#run*
 		Execute a shell {command} in the background.
 		After the command is executed {function} can will be called.
 		{function} can be either:
-		string
-			Name of a function.
 		|Funcref|
 			A Function ref
 		|Dictionary|

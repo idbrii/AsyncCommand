@@ -34,6 +34,7 @@ command! -nargs=+ -complete=shellcmd AsyncCommand call asynccommand#run(<q-args>
 
 command! -nargs=+ -complete=file AsyncGrep call s:AsyncGrep(<q-args>)
 command! -nargs=+ -complete=file -complete=shellcmd AsyncShell call s:AsyncShell(<q-args>)
+command! -nargs=* AsyncMake call s:AsyncMake(<q-args>)
 
 command! -nargs=1 -complete=tag AsyncCscopeFindSymbol call s:AsyncCscopeFindX('s '. <q-args>)
 command! -nargs=1 -complete=tag AsyncCscopeFindCalls call s:AsyncCscopeFindX('c '. <q-args>)
@@ -60,6 +61,21 @@ endfunction
 function! s:AsyncShell(command)
     call asynccommand#run(a:command, asynchandler#split())
 endfunction
+
+" Make
+"   - uses the current make program
+"   - optional parameter for make target(s)
+function! s:AsyncMake(target)
+    let make_cmd = &makeprg ." ". a:target
+    let title = 'Make: '
+    if a:target == ''
+        let title .= "(default)"
+    else
+        let title .= a:target
+    endif
+    call asynccommand#run(make_cmd, asynchandler#quickfix(&errorformat, title))
+endfunction
+
 
 " Cscope find
 "   - open result in quickfix

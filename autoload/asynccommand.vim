@@ -15,7 +15,7 @@ let s:receivers = {}
 if has("win32")
     " Works in Windows (Win7 x64)
     function! s:Async_Impl(tool_cmd, vim_cmd)
-        silent exec "!start /min cmd /c \"".a:tool_cmd." & ".a:vim_cmd."\""
+        silent exec "!start /min cmd /c \"".a:tool_cmd." & ".a:vim_cmd." >NUL\""
     endfunction
     function! s:Async_Single_Impl(tool_cmd)
         silent exec "!start /min cmd /c \"".a:tool_cmd."\""
@@ -23,7 +23,7 @@ if has("win32")
 else
     " Works in linux (Ubuntu 10.04)
     function! s:Async_Impl(tool_cmd, vim_cmd)
-        silent exec "! ( ".a:tool_cmd." ; ".a:vim_cmd." ) &"
+        silent exec "! ( ".a:tool_cmd." ; ".a:vim_cmd." >/dev/null ) &"
     endfunction
     function! s:Async_Single_Impl(tool_cmd)
         silent exec "! ".a:tool_cmd." &"
@@ -64,7 +64,7 @@ function! asynccommand#run(command, ...)
   endif
 
   " Grab output and error in case there's something we should see
-  let tool_cmd = a:command . printf(shellredir, temp_file)
+  let tool_cmd = a:command . ' ' . printf(shellredir, temp_file)
 
   if type(Fn) == type({})
               \ && has_key(Fn, 'get')

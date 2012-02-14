@@ -24,7 +24,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 function! AsyncCommandDone(file)
-  return asynccommand#done(a:file)
+    return asynccommand#done(a:file)
 endfunction
 
 command! -nargs=+ -complete=shellcmd AsyncCommand call asynccommand#run(<q-args>)
@@ -42,7 +42,7 @@ command! -nargs=1 -complete=tag AsyncCscopeFindX call s:AsyncCscopeFindX(<q-args
 
 
 if (! exists("no_plugin_maps") || ! no_plugin_maps) &&
-      \ (! exists("no_asynccommand_maps") || ! no_asynccommand_maps)
+            \ (! exists("no_asynccommand_maps") || ! no_asynccommand_maps)
     nmap <unique> <A-S-g> :AsyncCscopeFindSymbol <C-r>=expand('<cword>')<CR><CR>
 endif
 
@@ -89,25 +89,25 @@ endfunction
 " f > 7   Find this file
 " i > 8   Find files #including this file
 let s:type_char_to_num = {
-    \ 's': 0,
-    \ 'g': 1,
-    \ 'd': 2,
-    \ 'c': 3,
-    \ 't': 4,
-    \ 'e': 6,
-    \ 'f': 7,
-    \ 'i': 8,
-    \ }
+            \ 's': 0,
+            \ 'g': 1,
+            \ 'd': 2,
+            \ 'c': 3,
+            \ 't': 4,
+            \ 'e': 6,
+            \ 'f': 7,
+            \ 'i': 8,
+            \ }
 let s:num_to_description = {
-    \ 0: 'C symbol',
-    \ 1: 'Definition',
-    \ 2: 'Functions called by this function',
-    \ 3: 'Functions calling this function',
-    \ 4: 'Assignments to',
-    \ 6: 'Egrep pattern',
-    \ 7: 'File',
-    \ 8: '#including this file',
-    \ }
+            \ 0: 'C symbol',
+            \ 1: 'Definition',
+            \ 2: 'Functions called by this function',
+            \ 3: 'Functions calling this function',
+            \ 4: 'Assignments to',
+            \ 6: 'Egrep pattern',
+            \ 7: 'File',
+            \ 8: '#including this file',
+            \ }
 " Wrap AsyncCscopeFind to make it easier to do cscope searches. The user
 " passes everything as one parameter and doesn't have to use numbers.
 function! s:AsyncCscopeFindX(input)
@@ -149,7 +149,7 @@ function! s:AsyncCscopeFind(type_num, query, title)
 endfunction
 
 function! s:CscopeResults(title)
-  return asynchandler#quickfix("%-G>>%m,%f:%l\ %m", "[Found: %s] Cscope: " . a:title)
+    return asynchandler#quickfix("%-G>>%m,%f:%l\ %m", "[Found: %s] Cscope: " . a:title)
 endfunction
 
 let &cpo = s:save_cpo

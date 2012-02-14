@@ -78,12 +78,17 @@ asynccommand#run({command} [, {function}[, {dict}]])        *asynccommand#run*
 		    let cmd .= a:target
 		    let env = {}
 		    function env.get(temp_file) dict
-			" open the file in a split
-			exec "split " . a:temp_file
-			" remove boring build output
-			%s/^\[xslt\].*$/
-			" go back to the previous window
-			wincmd p
+		        let h = ''
+		        if self.return_code == 0
+		            " use tiny split window height on success
+		            let h = 1
+		        endif
+		        " open the file in a split
+		        exec h . "split " . a:temp_file
+		        " remove boring build output
+		        %s/^\[xslt\].*$/
+		        " go back to the previous window
+		        wincmd p
 		    endfunction
 
 		    " tab_restore prevents interruption when the task completes.

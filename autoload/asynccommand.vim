@@ -20,6 +20,7 @@ if has("win32")
     function! s:Async_Single_Impl(tool_cmd)
         silent exec "!start /min cmd /c \"".a:tool_cmd."\""
     endfunction
+    let s:result_var = '%ERRORLEVEL%'
 else
     " Works in linux (Ubuntu 10.04)
     function! s:Async_Impl(tool_cmd, vim_cmd)
@@ -28,6 +29,7 @@ else
     function! s:Async_Single_Impl(tool_cmd)
         silent exec "! ".a:tool_cmd." &"
     endfunction
+    let s:result_var = '$?'
 endif
 
 function! asynccommand#run(command, ...)
@@ -84,15 +86,16 @@ function! asynccommand#run(command, ...)
         let prg = "vim"
     endif
 
-    let vim_cmd = prg . " --servername " . v:servername . " --remote-expr \"AsyncCommandDone('" . temp_file . "')\" "
+    let vim_cmd = prg . " --servername " . v:servername . " --remote-expr \"AsyncCommandDone('" . temp_file . "', " . s:result_var . ")\" "
 
     call s:Async_Impl(tool_cmd, vim_cmd)
 endfunction
 
-function! asynccommand#done(temp_file_name)
+function! asynccommand#done(temp_file_name, return_code)
     " Called on completion of the task
     let r = s:receivers[a:temp_file_name]
     if type(r.dict) == type({})
+        let r.dict.return_code = a:return_code
         call call(r.func, [a:temp_file_name], r.dict)
     else
         call call(r.func, [a:temp_file_name])
@@ -121,6 +124,8 @@ function! asynccommand#tab_restore(env)
         let current_tab = tabpagenr()
         try
             silent! exec "tabnext " . self.tab
+            " pass our return code on to our sub-function
+            let self.env.return_code = self.return_code
             " self.env.get is not this function -- it's the function passed to
             " tab_restore()
             call call(self.env.get, [a:temp_file_name], self.env)

@@ -23,8 +23,8 @@ let g:loaded_asynccommand = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! AsyncCommandDone(file)
-    return asynccommand#done(a:file)
+function! AsyncCommandDone(file, return_code)
+    return asynccommand#done(a:file, a:return_code)
 endfunction
 
 command! -nargs=+ -complete=shellcmd AsyncCommand call asynccommand#run(<q-args>)

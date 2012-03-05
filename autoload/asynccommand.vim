@@ -66,7 +66,7 @@ function! asynccommand#run(command, ...)
     endif
 
     " Grab output and error in case there's something we should see
-    let tool_cmd = a:command . ' ' . printf(shellredir, temp_file)
+    let tool_cmd = '(' . a:command . ') ' . printf(shellredir, temp_file)
 
     if type(Fn) == type({})
                 \ && has_key(Fn, 'get')

@@ -126,7 +126,7 @@ asynchandler#split()                                     *asynchandler#split*
 
 ==============================================================================
 
-						  *asynchronous-configuration*
+						  *asynccommand-configuration*
 Configuration~
 
 g:asynccommand_prg                                        *g:asynccommand_prg*
@@ -134,6 +134,17 @@ g:asynccommand_prg                                        *g:asynccommand_prg*
 		capture data from backgrounded commands.  AsyncCommand is
 		compatible with |macvim| and will use mvim if it is available.
 		See |mvim| for setup.
+
+shellredir                                           *asynccommand-shellredir*
+		You may find it useful to change vim's |shellredir| setting to
+		use tee (which writes to a file, but also to stdout). On
+		MS-Windows, this will allow you to see the output of the
+		command in the opened command window.
+>
+		" redirect to both standard output and files
+		set shellredir=2>&1\|tee\ %s
+<
+
 
 ==============================================================================
 

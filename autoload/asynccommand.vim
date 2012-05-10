@@ -90,12 +90,11 @@ function! asynccommand#run(command, ...)
 
     call s:Async_Impl(tool_cmd, vim_cmd)
     if !has("gui_running")
-        " In console vim, we need to clear and redraw after running a
-        " background program because running the program often clears the
-        " screen.
+        " In console vim, clear and redraw after running a background program
+        " to remove screen clear from running external program. (Vim stops
+        " being visible.)
         redraw!
     endif
-
 endfunction
 
 function! asynccommand#done(temp_file_name, return_code)

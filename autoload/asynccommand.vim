@@ -43,7 +43,7 @@ function! asynccommand#run(command, ...)
     if len(v:servername) == 0
         echo "Error: AsyncCommand requires vim to be started with a servername."
         echo "       See :help --servername"
-        return
+        return ""
     endif
     if a:0 == 1
         let Fn = a:1
@@ -53,7 +53,14 @@ function! asynccommand#run(command, ...)
         let env = a:2
     else
         " execute in background
-        return s:Async_Single_Impl(a:command)
+        call s:Async_Single_Impl(a:command)
+		if !has("gui_running")
+			" In console vim, clear and redraw after running a background program
+			" to remove screen clear from running external program. (Vim stops
+			" being visible.)
+			redraw!
+		endif
+		return ""
     endif
 
     " String together and execute.
@@ -95,6 +102,7 @@ function! asynccommand#run(command, ...)
         " being visible.)
         redraw!
     endif
+	return ""
 endfunction
 
 function! asynccommand#done(temp_file_name, return_code)

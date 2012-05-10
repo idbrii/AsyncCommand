@@ -20,6 +20,14 @@ if exists('g:loaded_asynccommand')
 endif
 let g:loaded_asynccommand = 1
 
+if &cp
+    echoerr "AsyncCommand cannot run in vi-compatible mode (see :help 'cp')."
+    finish
+elseif !has('clientserver')
+    echoerr "AsyncCommand requires vim compiled with +clientserver (see :help +clientserver)"
+    finish
+endif
+
 let s:save_cpo = &cpo
 set cpo&vim
 

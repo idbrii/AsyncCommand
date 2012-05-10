@@ -89,6 +89,13 @@ function! asynccommand#run(command, ...)
     let vim_cmd = prg . " --servername " . v:servername . " --remote-expr \"AsyncCommandDone('" . temp_file . "', " . s:result_var . ")\" "
 
     call s:Async_Impl(tool_cmd, vim_cmd)
+    if !has("gui_running")
+        " In console vim, we need to clear and redraw after running a
+        " background program because running the program often clears the
+        " screen.
+        redraw!
+    endif
+
 endfunction
 
 function! asynccommand#done(temp_file_name, return_code)

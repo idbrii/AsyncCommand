@@ -20,7 +20,7 @@ if has("win32")
     function! s:Async_Single_Impl(tool_cmd)
         silent exec "!start /min cmd /c \"".a:tool_cmd."\""
     endfunction
-    let s:result_var = '%ERRORLEVEL%'
+    let s:result_var = '\%ERRORLEVEL\%'
 else
     " Works in linux (Ubuntu 10.04)
     function! s:Async_Impl(tool_cmd, vim_cmd)

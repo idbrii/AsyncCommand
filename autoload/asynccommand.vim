@@ -41,8 +41,15 @@ function! asynccommand#run(command, ...)
     "   done on command completion.
     "   - [dict] will be passed to function.
     if len(v:servername) == 0
-        echo "Error: AsyncCommand requires vim to be started with a servername."
+        echohl Error
+        echo "Error: AsyncCommand requires +clientserver and needs a value for v:servername."
         echo "       See :help --servername"
+        let server = 'x11'
+        if has("win32")
+            let server = 'w32'
+        endif
+        echo "       and :help ". server ."-clientserver"
+        echohl
         return ""
     endif
     if a:0 == 1

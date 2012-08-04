@@ -1,4 +1,4 @@
-*asynccommand.txt*	Plug-in for running asynchronous shell commands.
+*asynccommand.txt*	Run commands without waiting.
 
 ==============================================================================
 
@@ -18,7 +18,9 @@ autoload/asynchandler.vim or define your own.
 AsyncCommand Requirements~
 
 AsyncCommand needs vim compiled with |+clientserver|. Check your vim version
-with |:version|.
+with |:version|. Vim must have a |v:servername| (see |--servername|). On unix,
+an X11 server is required to use |+clientserver|. See |x11-clientserver| and
+|w32-clientserver|.
 
 						       *asynccommand-commands*
 Commands~

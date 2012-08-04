@@ -85,12 +85,22 @@ function! asynccommand#run(command, ...)
         let s:receivers[temp_file] = {'func': Fn, 'dict': env}
     endif
 
+    " Use the configured command if available, otherwise try to guess what's
+    " running.
     if exists('g:asynccommand_prg')
         let prg = g:asynccommand_prg
-    elseif has("gui_macvim") && executable('mvim')
+    elseif has("gui_running") && has("gui_macvim") && executable('mvim')
         let prg = "mvim"
-    else
+    elseif has("gui_running") && executable('gvim')
+        let prg = "gvim"
+    elseif executable('vim')
         let prg = "vim"
+    else
+        echohl Error
+        echo "AsyncCommand failed to find Vim: Neither vim, gvim, nor mvim are in your path."
+        echo "Update your PATH or set g:asynccommand_prg to your vim."
+        echohl
+        return ""
     endif
 
     let vim_cmd = prg . " --servername " . v:servername . " --remote-expr \"AsyncCommandDone('" . temp_file . "', " . s:result_var . ")\" "

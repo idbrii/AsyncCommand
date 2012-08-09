@@ -169,4 +169,4 @@ function! asynccommand#tab_restore(env)
     return env
 endfunction
 
-"vi:et:sw=4 ts=4
+" vi: et sw=4 ts=4

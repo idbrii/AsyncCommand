@@ -82,4 +82,4 @@ function! asynchandler#split()
     return asynccommand#tab_restore(env)
 endfunction
 
-"vi:et:sw=4 ts=4
+" vi: et sw=4 ts=4

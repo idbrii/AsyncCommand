@@ -163,4 +163,4 @@ endfunction
 
 let &cpo = s:save_cpo
 
-"vi:et:sw=4 ts=4
+" vi: et sw=4 ts=4

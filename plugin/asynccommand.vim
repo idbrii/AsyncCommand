@@ -52,7 +52,7 @@ command! -nargs=1 -complete=tag AsyncCscopeFindX call s:AsyncCscopeFindX(<q-args
 
 if (! exists("no_plugin_maps") || ! no_plugin_maps) &&
             \ (! exists("no_asynccommand_maps") || ! no_asynccommand_maps)
-    nmap <unique> <A-S-g> :AsyncCscopeFindSymbol <C-r>=expand('<cword>')<CR><CR>
+    nnoremap <unique> <A-S-g> :AsyncCscopeFindSymbol <C-r>=expand('<cword>')<CR><CR>
 endif
 
 """"""""""""""""""""""

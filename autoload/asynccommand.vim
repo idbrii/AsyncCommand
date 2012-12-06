@@ -132,7 +132,7 @@ function! asynccommand#done(temp_file_name, return_code)
         call call(r.func, [a:temp_file_name])
     endif
     unlet s:receivers[a:temp_file_name]
-    delete a:temp_file_name
+    call delete(a:temp_file_name)
 endfunction
 
 function! asynccommand#tab_restore(env)

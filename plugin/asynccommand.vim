@@ -61,7 +61,7 @@ endif
 " Grep
 "   - open result in quickfix
 function! s:AsyncGrep(query)
-    let grep_cmd = "grep --line-number --with-filename ".a:query
+    let grep_cmd = &grepprg ." ". a:query
     call asynccommand#run(grep_cmd, asynchandler#quickfix(&grepformat, '[Found: %s] grep ' . a:query))
 endfunction
 

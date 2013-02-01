@@ -58,10 +58,25 @@ endif
 """"""""""""""""""""""
 " Actual implementations
 
+" Fill in $* pattern for prg commands
+" grepprg and makeprg both allow an optional placeholder '$*' to specify where
+" arguments are included. If omitted, append a space and the arguments to the
+" end of the prg command.
+function! s:InsertArgumentsIntoPrgCmd(prg_command, arguments)
+    let placeholder_re = '\V$*'
+    let cmd = a:prg_command
+    if match(cmd, placeholder_re) < 0
+        let cmd .= ' $*'
+    endif
+
+    return substitute(cmd, placeholder_re, a:arguments, 'g')
+endf
+
+
 " Grep
 "   - open result in quickfix
 function! s:AsyncGrep(query)
-    let grep_cmd = &grepprg ." ". a:query
+    let grep_cmd = s:InsertArgumentsIntoPrgCmd(&grepprg, a:query)
     call asynccommand#run(grep_cmd, asynchandler#quickfix(&grepformat, '[Found: %s] grep ' . a:query))
 endfunction
 
@@ -75,7 +90,7 @@ endfunction
 "   - uses the current make program
 "   - optional parameter for make target(s)
 function! s:AsyncMake(target)
-    let make_cmd = &makeprg ." ". a:target
+    let make_cmd = s:InsertArgumentsIntoPrgCmd(&makeprg, a:target)
     let title = 'Make: '
     if a:target == ''
         let title .= "(default)"

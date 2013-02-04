@@ -37,6 +37,38 @@ Commands~
 :AsyncShell {cmd}					         *:AsyncShell*
                 Execute shell {cmd} in the background. When it completes, open
                 the result in a split window.
+                Completes shell commands.
+
+:AsyncGrep [arguments]                                            *:AsyncGrep*
+                Run a grep command in the background using 'grepprg'. On
+                completion, the results are loaded in the quickfix. The window
+                is titled with the query.
+                Completes filenames.
+
+:AsyncMake [arguments]                                            *:AsyncMake*
+                Run a build in the background using 'makeprg'. On completion,
+                the build output is loaded in the quickfix. The window is
+                titled with the build target.
+
+:AsyncCscopeFindX {querytype} {name}                       *:AsyncCscopeFindX*
+                Run a cscope search in the background using 'cscopeprg'. On
+                completion, the results are loaded in the quickfix. The window
+                is titled with the query.
+                Usage is the same as the |cscope-find| command: Expects the
+                character describing the query type and the query name. For
+                example, to search for the functions called by main():
+>
+    :AsyncCscopeFindX d main
+<
+                Completes tags.
+
+:AsyncCscopeFindSymbol {name}                         *:AsyncCscopeFindSymbol*
+                Same as AsyncCscopeFindSymbol but automatically prepends 's'.
+                Just expects a symbol name.
+
+:AsyncCscopeFindCalls {name}                           *:AsyncCscopeFindCalls*
+                Same as AsyncCscopeFindSymbol but automatically prepends 'c'.
+                Just expects a function name.
 
 						      *asynccommand-functions*
 Functions~

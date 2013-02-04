@@ -37,11 +37,8 @@ function! AsyncCommandDone(file, return_code)
 endfunction
 
 command! AsyncPending call asynccommand#open_pending()
+
 command! -nargs=+ -complete=shellcmd AsyncCommand call asynccommand#run(<q-args>)
-
-" Examples below
-" ==============
-
 command! -nargs=+ -complete=file AsyncGrep call s:AsyncGrep(<q-args>)
 command! -nargs=+ -complete=file -complete=shellcmd AsyncShell call s:AsyncShell(<q-args>)
 command! -nargs=* AsyncMake call s:AsyncMake(<q-args>)

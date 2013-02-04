@@ -11,6 +11,14 @@ let g:loaded_autoload_asynccommand = 1
 
 let s:receivers = {}
 
+if !exists("g:asynccommand_statusline")
+    let g:asynccommand_statusline = 'Pending:%d'
+endif
+
+if !exists("g:asynccommand_statusline_autohide")
+    let g:asynccommand_statusline_autohide = 0
+endif
+
 " Basic background task running is different on each platform
 if has("win32")
     " Works in Windows (Win7 x64)
@@ -167,6 +175,15 @@ function! asynccommand#tab_restore(env)
         endtry
     endfunction
     return env
+endfunction
+
+function! asynccommand#statusline()
+    let n_pending_jobs = len(s:receivers)
+    if g:asynccommand_statusline_autohide && n_pending_jobs == 0
+        return ''
+    endif
+
+    return printf(g:asynccommand_statusline, n_pending_jobs)
 endfunction
 
 " vi: et sw=4 ts=4

@@ -137,6 +137,24 @@ g:asynccommand_prg                                        *g:asynccommand_prg*
 		compatible with |macvim| and will use mvim if it is available.
 		See |mvim| for setup.
 
+statusline                                           *asynccommand-statusline*
+                Add %{asynccommand#statusline()} to your 'statusline' to show
+                the pending command count.
+
+g:asynccommand_statusline                          *g:asynccommand_statusline*
+                Default: 'Pending:%d'
+                A |printf| format string that defines how to display the
+                number of commands running in the background for
+                |asynccommand-statusline|. Must include a "%d" where you want
+                the count of pending commands.
+
+g:asynccommand_statusline_autohide        *g:asynccommand_statusline_autohide*
+                Default: 0
+                When enabled, uses no text for |asynccommand-statusline| when
+                there are no pending commands. May look strange if your
+                'statusline' adds separators between segments (e.g., the
+                |Powerline| plugin).
+
 shellredir                                           *asynccommand-shellredir*
 		You may find it useful to change vim's |shellredir| setting to
 		use tee (which writes to a file, but also to stdout). On

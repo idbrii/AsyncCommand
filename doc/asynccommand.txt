@@ -25,6 +25,12 @@ an X11 server is required to use |+clientserver|. See |x11-clientserver| and
 						       *asynccommand-commands*
 Commands~
 
+:AsyncPending					               *:AsyncPending*
+                Open the preview window with a listing of the output files for
+                the currently active asynccommands. Run again to refresh the
+                listing. Commands like AsyncCommand that don't have a
+                completion handler are not included.
+
 :AsyncCommand {cmd}					       *:AsyncCommand*
 		Execute shell {cmd} in the background.
 

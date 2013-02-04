@@ -186,4 +186,40 @@ function! asynccommand#statusline()
     return printf(g:asynccommand_statusline, n_pending_jobs)
 endfunction
 
+" Return a string with a header and list of the output files and title (if
+" available) for all pending commands.
+function! s:create_pending_listing()
+    let out  = "Pending Output Files\n"
+    let out .= "====================\n"
+    let out .= "Commands (identified by window title if available) are writing to these files.\n"
+    let out .= "\n"
+    for [fname, handler] in items(s:receivers)
+        let out .= fname
+        try
+            let id = handler.dict.env.title
+        catch /Key not present in Dictionary/
+            let id = 'untitled'
+        endtry
+        let out .= printf("\t- %s\n", id)
+    endfor
+    return out
+endfunction
+
+function! asynccommand#open_pending()
+    silent pedit _AsyncPending_
+    wincmd P
+    1,$delete
+
+    silent 0put =s:create_pending_listing()
+
+    " Prevent use of the buffer as a file (to ensure if the file exists, it's
+    " not saved and to prevent it from being modified -- we don't support
+    " cancelling). 
+    setlocal buftype=nofile
+    setlocal bufhidden=wipe
+    setlocal noswapfile
+    setlocal nobuflisted
+    setlocal readonly
+endfunction
+
 " vi: et sw=4 ts=4

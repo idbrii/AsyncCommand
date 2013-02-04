@@ -36,6 +36,7 @@ function! AsyncCommandDone(file, return_code)
     return ""
 endfunction
 
+command! AsyncPending call asynccommand#open_pending()
 command! -nargs=+ -complete=shellcmd AsyncCommand call asynccommand#run(<q-args>)
 
 " Examples below

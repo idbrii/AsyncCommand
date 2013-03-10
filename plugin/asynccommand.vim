@@ -67,7 +67,12 @@ function! s:InsertArgumentsIntoPrgCmd(prg_command, arguments)
         let cmd .= ' $*'
     endif
 
-    return substitute(cmd, placeholder_re, a:arguments, 'g')
+    " Ensure user's escape sequences are passed to prg_command. Don't use
+    " shellescape: only want user's escapes passed along to work like :grep,
+    " etc...
+    let args = escape(a:arguments, '\')
+
+    return substitute(cmd, placeholder_re, args, 'g')
 endf
 
 

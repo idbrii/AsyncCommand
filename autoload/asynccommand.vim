@@ -208,6 +208,7 @@ endfunction
 function! asynccommand#open_pending()
     silent pedit _AsyncPending_
     wincmd P
+    setlocal modifiable
     1,$delete
 
     silent 0put =s:create_pending_listing()
@@ -219,6 +220,7 @@ function! asynccommand#open_pending()
     setlocal bufhidden=wipe
     setlocal noswapfile
     setlocal nobuflisted
+    setlocal nomodifiable
     setlocal readonly
 endfunction
 

@@ -26,7 +26,11 @@ function! asynchandler#rename(path)
 endfunction
 
 " Convienience functions for loading the result in the quickfix/locationlist
-" or adding to the window's contents
+" or adding to the window's contents.
+"
+" format - The errorformat applied to the quickfix results.
+" title - The window title expects a %d to list the number of results. See
+"   w:quickfix_title
 "
 function! asynchandler#quickfix(format, title)
     return asynchandler#qf("cgetfile", "quickfix", a:format, a:title)

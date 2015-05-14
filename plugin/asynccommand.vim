@@ -40,7 +40,8 @@ command! AsyncPending call asynccommand#open_pending()
 
 command! -nargs=+ -complete=shellcmd AsyncCommand call asynccommand#run(<q-args>)
 command! -nargs=+ -complete=file AsyncGrep call s:AsyncGrep(<q-args>)
-command! -nargs=+ -complete=file -complete=shellcmd AsyncShell call s:AsyncShell(<q-args>)
+" AsyncShell! for immutable preview window.
+command! -nargs=+ -complete=file -complete=shellcmd -bang AsyncShell call s:AsyncShell(<bang>0, <q-args>)
 command! -nargs=* AsyncMake call s:AsyncMake(<q-args>)
 
 command! -nargs=1 -complete=tag AsyncCscopeFindSymbol call s:AsyncCscopeFindX('s '. <q-args>)
@@ -85,8 +86,9 @@ endfunction
 
 " Shell commands
 "   - open result in a split
-function! s:AsyncShell(command)
-    call asynccommand#run(a:command, asynchandler#split())
+"   - is_const_preview=false to allow editing and skip mappings
+function! s:AsyncShell(is_const_preview, command)
+    call asynccommand#run(a:command, asynchandler#split(a:is_const_preview))
 endfunction
 
 " Make

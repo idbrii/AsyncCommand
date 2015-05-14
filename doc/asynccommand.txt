@@ -160,9 +160,10 @@ asynchandler#loclist_add({errorformat}, {title})   *asynchandler#loclist_add*
 		Same as |asynchandler#quickfix_add| but use the
 		|location-list|.
 
-asynchandler#split()                                     *asynchandler#split*
+asynchandler#split(is_const_preview)                     *asynchandler#split*
 		Open the results of the asynchronous shell command in a new
-		split.
+		split. Pass is_const_preview=1 to setup buffer as immutable
+		preview window. It will have q mapped to close.
 
 ==============================================================================
 

@@ -76,11 +76,20 @@ function! asynchandler#qf(command, list, format, title)
     return asynccommand#tab_restore(env)
 endfunction
 
-function! asynchandler#split()
+function! asynchandler#split(is_const_preview)
     " Load the result in a split
-    let env = {}
+    let env = {
+                \ 'is_const_preview' : a:is_const_preview
+                \ }
     function env.get(temp_file_name) dict
-        exec "split " . a:temp_file_name
+        if self.is_const_preview
+            exec "pedit " . a:temp_file_name
+            wincmd P
+            setlocal nomodifiable
+            silent! nnoremap <unique> <buffer> q :bdelete<CR>
+        else
+            exec "split " . a:temp_file_name
+        endif
         silent! wincmd p
     endfunction
     return asynccommand#tab_restore(env)

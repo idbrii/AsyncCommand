@@ -213,6 +213,9 @@ function! asynccommand#open_pending()
 
     silent 0put =s:create_pending_listing()
 
+    " Map q for easy quit if not already mapped.
+    silent! nnoremap <unique> <buffer> q :bdelete<CR>
+
     " Prevent use of the buffer as a file (to ensure if the file exists, it's
     " not saved and to prevent it from being modified -- we don't support
     " cancelling). 

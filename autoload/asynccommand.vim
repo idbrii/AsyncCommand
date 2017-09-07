@@ -113,7 +113,7 @@ function! asynccommand#run(command, ...)
     else
         echohl Error
         echo "AsyncCommand failed to find Vim: Neither vim, gvim, nor mvim are in your path."
-        echo "Update your PATH or set g:asynccommand_prg to your vim."
+        echo "Update your PATH or set g:asynccommand_prg to your vim executable."
         echohl
         return ""
     endif
@@ -216,9 +216,9 @@ function! asynccommand#open_pending()
     " Map q for easy quit if not already mapped.
     silent! nnoremap <unique> <buffer> q :bdelete<CR>
 
-    " Prevent use of the buffer as a file (to ensure if the file exists, it's
-    " not saved and to prevent it from being modified -- we don't support
-    " cancelling). 
+    " Prevent use of the buffer as a file (to ensure if a file matching this
+    " name exists, we don't touch it). We don't support cancelling so
+    " modification is meaningless.
     setlocal buftype=nofile
     setlocal bufhidden=wipe
     setlocal noswapfile

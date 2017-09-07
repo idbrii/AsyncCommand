@@ -25,7 +25,7 @@ function! asynchandler#rename(path)
     return env
 endfunction
 
-" Convienience functions for loading the result in the quickfix/locationlist
+" Convenience functions for loading the result in the quickfix/locationlist
 " or adding to the window's contents.
 "
 " format - The errorformat applied to the quickfix results.

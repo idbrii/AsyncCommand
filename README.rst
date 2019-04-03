@@ -1,9 +1,11 @@
 AsyncCommand
 ====
 
+This branch replaces AsyncCommand's serverclient backend with
+[asyncrun.vim](https://github.com/skywind3000/asyncrun.vim).
+
 AsyncCommand allows you to execute shell commands without waiting for them 
-to complete. When the application terminates, its output can be loaded into 
-a vim buffer. AsyncCommand is written to be compatible with Windows and 
+to complete. AsyncCommand is written to be compatible with Windows and 
 Linux (tested on Win7 and Ubuntu 11.10). 
 
 Currently three types of commands are supported: 

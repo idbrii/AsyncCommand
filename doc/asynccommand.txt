@@ -17,10 +17,7 @@ autoload/asynchandler.vim or define your own.
 						   *asynccommand-requirements*
 AsyncCommand Requirements~
 
-AsyncCommand needs vim compiled with |+clientserver|. Check your vim version
-with |:version|. Vim must have a |v:servername| (see |--servername|). On unix,
-an X11 server is required to use |+clientserver|. See |x11-clientserver| and
-|w32-clientserver|.
+AsyncCommand depends on asyncrun.vim.
 
 						       *asynccommand-commands*
 Commands~
@@ -193,17 +190,6 @@ g:asynccommand_statusline_autohide        *g:asynccommand_statusline_autohide*
                 there are no pending commands. May look strange if your
                 'statusline' adds separators between segments (e.g., the
                 |Powerline| plugin).
-
-shellredir                                           *asynccommand-shellredir*
-		You may find it useful to change vim's |shellredir| setting to
-		use tee (which writes to a file, but also to stdout). On
-		MS-Windows, this will allow you to see the output of the
-		command in the opened command window.
->
-		" redirect to both standard output and files
-		set shellredir=2>&1\|tee\ %s
-<
-
 
 ==============================================================================
 

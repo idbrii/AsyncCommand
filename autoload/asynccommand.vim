@@ -19,27 +19,6 @@ if !exists("g:asynccommand_statusline_autohide")
     let g:asynccommand_statusline_autohide = 0
 endif
 
-" Basic background task running is different on each platform
-if has("win32")
-    " Works in Windows (Win7 x64)
-    function! s:Async_Impl(tool_cmd, vim_cmd)
-        silent exec "!start /min cmd /c \"".a:tool_cmd." & ".a:vim_cmd." >NUL\""
-    endfunction
-    function! s:Async_Single_Impl(tool_cmd)
-        silent exec "!start /min cmd /c \"".a:tool_cmd."\""
-    endfunction
-    let s:result_var = '\%ERRORLEVEL\%'
-else
-    " Works in linux (Ubuntu 10.04)
-    function! s:Async_Impl(tool_cmd, vim_cmd)
-        silent exec "! ( ".a:tool_cmd." ; ".a:vim_cmd." >/dev/null ) &"
-    endfunction
-    function! s:Async_Single_Impl(tool_cmd)
-        silent exec "! ".a:tool_cmd." &"
-    endfunction
-    let s:result_var = '$?'
-endif
-
 function! asynccommand#run(command, ...)
     " asynccommand#run(command, [function], [dict])
     "   - command is the shell command to execute asynchronously.
@@ -48,18 +27,6 @@ function! asynccommand#run(command, ...)
     "   on whether you provide dict. If function is not provided, nothing is
     "   done on command completion.
     "   - [dict] will be passed to function.
-    if len(v:servername) == 0
-        echohl Error
-        echo "Error: AsyncCommand requires +clientserver and needs a value for v:servername."
-        echo "       See :help --servername"
-        let server = 'x11'
-        if has("win32")
-            let server = 'w32'
-        endif
-        echo "       and :help ". server ."-clientserver"
-        echohl
-        return ""
-    endif
     if a:0 == 1
         let Fn = a:1
         let env = 0
@@ -67,31 +34,15 @@ function! asynccommand#run(command, ...)
         let Fn = a:1
         let env = a:2
     else
-        " execute in background
-        call s:Async_Single_Impl(a:command)
-		if !has("gui_running")
-			" In console vim, clear and redraw after running a background program
-			" to remove screen clear from running external program. (Vim stops
-			" being visible.)
-			redraw!
-		endif
-		return ""
+        " execute in background without capturing input
+        " TODO
     endif
 
-    " String together and execute.
+    " Using file as an identifier
     let temp_file = tempname()
     " Avoid backslashes to ensure they're not treated as escapes. Vim is smart
     " enough to find files with either slash direction.
     let temp_file = substitute(temp_file, '\\', '/', 'g')
-
-    let shellredir = &shellredir
-    if match( shellredir, '%s') == -1
-        " ensure shellredir has a %s so printf works
-        let shellredir .= '%s'
-    endif
-
-    " Grab output and error in case there's something we should see
-    let tool_cmd = '(' . a:command . ') ' . printf(shellredir, temp_file)
 
     if type(Fn) == type({})
                 \ && has_key(Fn, 'get')
@@ -103,27 +54,12 @@ function! asynccommand#run(command, ...)
         let s:receivers[temp_file] = {'func': Fn, 'dict': env}
     endif
 
-    " Use the configured command if available, otherwise try to guess what's
-    " running.
-    if exists('g:asynccommand_prg')
-        let prg = g:asynccommand_prg
-    elseif has("gui_running") && has("gui_macvim") && executable('mvim')
-        let prg = "mvim"
-    elseif has("gui_running") && executable('gvim')
-        let prg = "gvim"
-    elseif executable('vim')
-        let prg = "vim"
-    else
-        echohl Error
-        echo "AsyncCommand failed to find Vim: Neither vim, gvim, nor mvim are in your path."
-        echo "Update your PATH or set g:asynccommand_prg to your vim executable."
-        echohl
-        return ""
-    endif
+    " Must escape spaces within post!
+    let post = '-post=call\ asynccommand#done("'. temp_file .'",0) '
 
-    let vim_cmd = prg . " --servername " . v:servername . " --remote-expr \"AsyncCommandDone('" . temp_file . "', " . s:result_var . ")\" "
-
-    call s:Async_Impl(tool_cmd, vim_cmd)
+    " When no visual selection, line1=current, line2=1
+    let current_line = getpos('.')[1]
+    call asyncrun#run('', '', post . a:command, 0, current_line, 1)
     if !has("gui_running")
         " In console vim, clear and redraw after running a background program
         " to remove screen clear from running external program. (Vim stops
@@ -186,7 +122,7 @@ function! asynccommand#statusline()
         return ''
     endif
 
-    return printf(g:asynccommand_statusline, n_pending_jobs)
+    return g:asyncrun_status
 endfunction
 
 " Return a string with a header and list of the output files and title (if

@@ -23,9 +23,6 @@ let g:loaded_asynccommand = 0
 if &cp
     echoerr "AsyncCommand cannot run in vi-compatible mode (see :help 'cp')."
     finish
-elseif !has('clientserver')
-    echoerr "AsyncCommand requires vim compiled with +clientserver (see :help +clientserver)"
-    finish
 endif
 let g:loaded_asynccommand = 1
 
@@ -41,9 +38,10 @@ command! AsyncPending call asynccommand#open_pending()
 
 command! -nargs=+ -complete=shellcmd AsyncCommand call asynccommand#run(<q-args>)
 command! -nargs=+ -complete=file AsyncGrep call s:AsyncGrep(<q-args>)
+"~ command! -bang -nargs=* -complete=file -bar AsyncGrep  AsyncRun<bang> -program=grep -auto=grep @ <args>
 " AsyncShell! for immutable preview window.
 command! -nargs=+ -complete=file -complete=shellcmd -bang AsyncShell call s:AsyncShell(<bang>0, <q-args>)
-command! -nargs=* AsyncMake call s:AsyncMake(<q-args>)
+command! -bang -nargs=* -complete=file -bar AsyncMake  AsyncRun<bang> -program=make -auto=make @ <args>
 
 command! -nargs=1 -complete=tag AsyncCscopeFindSymbol call s:AsyncCscopeFindX('s '. <q-args>)
 command! -nargs=1 -complete=tag AsyncCscopeFindCalls call s:AsyncCscopeFindX('c '. <q-args>)

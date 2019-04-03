@@ -70,6 +70,10 @@ function! asynccommand#run(command, ...)
 endfunction
 
 function! asynccommand#done(temp_file_name, return_code)
+    " Text is actually in the quickfix and not in the temp file.
+    " TODO: Pull output file out of asyncrun so we don't do this unnecessary
+    " work.
+    call writefile(map(getqflist(), 'v:val.text'), a:temp_file_name, 'w')
     " Called on completion of the task
     let r = s:receivers[a:temp_file_name]
     if type(r.dict) == type({})

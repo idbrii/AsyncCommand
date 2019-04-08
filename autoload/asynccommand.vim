@@ -22,13 +22,13 @@ endif
 " Basic background task running is different on each platform
 if has("win32")
     " Works in Windows (Win7 x64)
-    function! s:Async_Single_Impl(tool_cmd)
+    function! s:RunWithoutCapturingOutput(tool_cmd)
         silent exec "!start /min cmd /c \"".a:tool_cmd."\""
     endfunction
     let s:result_var = '\%ERRORLEVEL\%'
 else
     " Works in linux (Ubuntu 10.04)
-    function! s:Async_Single_Impl(tool_cmd)
+    function! s:RunWithoutCapturingOutput(tool_cmd)
         silent exec "! ".a:tool_cmd." &"
     endfunction
     let s:result_var = '$?'
@@ -49,8 +49,9 @@ function! asynccommand#run(command, ...)
         let Fn = a:1
         let env = a:2
     else
-        " execute in background without capturing input
-        call s:Async_Single_Impl(a:command)
+        " No additional args means no handling of output, so run without
+        " capturing it.
+        call s:RunWithoutCapturingOutput(a:command)
 		if !has("gui_running")
 			" In console vim, clear and redraw after running a background program
 			" to remove screen clear from running external program. (Vim stops

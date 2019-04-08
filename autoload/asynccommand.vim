@@ -19,6 +19,21 @@ if !exists("g:asynccommand_statusline_autohide")
     let g:asynccommand_statusline_autohide = 0
 endif
 
+" Basic background task running is different on each platform
+if has("win32")
+    " Works in Windows (Win7 x64)
+    function! s:Async_Single_Impl(tool_cmd)
+        silent exec "!start /min cmd /c \"".a:tool_cmd."\""
+    endfunction
+    let s:result_var = '\%ERRORLEVEL\%'
+else
+    " Works in linux (Ubuntu 10.04)
+    function! s:Async_Single_Impl(tool_cmd)
+        silent exec "! ".a:tool_cmd." &"
+    endfunction
+    let s:result_var = '$?'
+endif
+
 function! asynccommand#run(command, ...)
     " asynccommand#run(command, [function], [dict])
     "   - command is the shell command to execute asynchronously.
@@ -35,7 +50,14 @@ function! asynccommand#run(command, ...)
         let env = a:2
     else
         " execute in background without capturing input
-        " TODO
+        call s:Async_Single_Impl(a:command)
+		if !has("gui_running")
+			" In console vim, clear and redraw after running a background program
+			" to remove screen clear from running external program. (Vim stops
+			" being visible.)
+			redraw!
+		endif
+		return ""
     endif
 
     " Using file as an identifier

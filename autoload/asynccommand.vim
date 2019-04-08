@@ -4,7 +4,7 @@
 " should only be called from AsyncCommand handlers. For handlers to use in
 " Async commands, see asynccommand_handlers.vim
 
-if exists("g:loaded_autoload_asynccommand") || &cp || !has('clientserver')
+if exists("g:loaded_autoload_asynccommand") || &cp
     finish
 endif
 let g:loaded_autoload_asynccommand = 1

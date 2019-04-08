@@ -4,8 +4,8 @@
 " completes, the function provided to asynccommand#run is called. You can use
 " these functions, or use them as a guide to define your own handlers.
 
-if exists("g:loaded_autoload_asynchandler") || &cp || !has('clientserver')
-    " requires nocompatible and clientserver
+if exists("g:loaded_autoload_asynchandler") || &cp
+    " requires nocompatible
     " also, don't double load
     finish
 endif

@@ -37,10 +37,10 @@ endfunction
 command! AsyncPending call asynccommand#open_pending()
 
 command! -nargs=+ -complete=shellcmd AsyncCommand call asynccommand#run(<q-args>)
-command! -bang -nargs=* -complete=file -bar AsyncGrep  AsyncRun<bang> -program=grep -auto=grep @ <args>
+command! -bang -nargs=* -complete=file AsyncGrep  AsyncRun<bang> -program=grep -auto=grep @ <args>
 " AsyncShell! for immutable preview window.
 command! -nargs=+ -complete=file -complete=shellcmd -bang AsyncShell call s:AsyncShell(<bang>0, <q-args>)
-command! -bang -nargs=* -complete=file -bar AsyncMake  AsyncRun<bang> -program=make -auto=make @ <args>
+command! -bang -nargs=* -complete=file AsyncMake  AsyncRun<bang> -program=make -auto=make @ <args>
 
 command! -nargs=1 -complete=tag AsyncCscopeFindSymbol call s:AsyncCscopeFindX('s '. <q-args>)
 command! -nargs=1 -complete=tag AsyncCscopeFindCalls call s:AsyncCscopeFindX('c '. <q-args>)

@@ -80,6 +80,9 @@ function! asynccommand#run(command, ...)
 
     " String together and execute.
     let temp_file = tempname()
+    " Avoid backslashes to ensure they're not treated as escapes. Vim is smart
+    " enough to find files with either slash direction.
+    let temp_file = substitute(temp_file, '\\', '/', 'g')
 
     let shellredir = &shellredir
     if match( shellredir, '%s') == -1
